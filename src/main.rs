@@ -2,6 +2,8 @@ use std::env;
 
 use warp::Filter;
 
+use emitter::sse_emitter::create_sse;
+use emitter::sse_emitter::with_sse;
 use crate::repository::user_repository::create_db;
 use crate::repository::user_repository::with_db;
 
@@ -10,6 +12,7 @@ mod models;
 pub mod repository;
 mod api;
 pub mod handlers;
+pub mod emitter;
 
 #[tokio::main]
 async fn main() {
@@ -18,16 +21,18 @@ async fn main() {
     pretty_env_logger::init();
 
     let db = create_db();
+    let sse = create_sse();
 
     let log = warp::log("any");
 
     let api = find_all!(db.clone())
         .or(find_by_id!(db.clone()))
-        .or(create!(db.clone()))
-        .or(update!(db.clone()))
-        .or(delete!(db));
+        .or(create!(db.clone(), sse.clone()))
+        .or(update!(db.clone(), sse.clone()))
+        .or(delete!(db, sse.clone()))
+        .or(sse!(sse));
 
-    let routes = api.with(log);
+    let api = api.with(log);
 
-    warp::serve(routes).run(([127, 0, 0, 1], 8080)).await;
+    warp::serve(api).run(([127, 0, 0, 1], 8080)).await;
 }

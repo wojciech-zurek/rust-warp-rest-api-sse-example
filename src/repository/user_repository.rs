@@ -1,21 +1,13 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use tokio::sync::Mutex;
+use tokio::sync::RwLock;
 use uuid::Uuid;
 use warp::Filter;
 
 use crate::models::user::User;
 
-pub type Database = Arc<Mutex<UserRepository>>;
-
-pub fn create_db() -> Database {
-    Arc::new(Mutex::new(UserRepository::new()))
-}
-
-pub fn with_db(db: Database) -> impl Filter<Extract=(Database, ), Error=std::convert::Infallible> + Clone {
-    warp::any().map(move || db.clone())
-}
+pub type Database = Arc<RwLock<UserRepository>>;
 
 pub struct UserRepository {
     inner: HashMap<Uuid, User>,
@@ -53,4 +45,12 @@ impl UserRepository {
     pub fn delete(&mut self, key: &Uuid) {
         self.inner.remove(key);
     }
+}
+
+pub fn create_db() -> Database {
+    Arc::new(RwLock::new(UserRepository::new()))
+}
+
+pub fn with_db(db: Database) -> impl Filter<Extract=(Database, ), Error=std::convert::Infallible> + Clone {
+    warp::any().map(move || db.clone())
 }

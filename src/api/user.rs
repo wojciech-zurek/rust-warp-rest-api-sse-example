@@ -5,36 +5,36 @@ use crate::models::user::User;
 
 #[macro_export]
 macro_rules! find_all {
-($value:expr) => {
-    self::routes::user_route::find_all().and(with_db($value)).and_then(self::handlers::user_handler::find_all)
+($db:expr) => {
+    self::routes::user_route::find_all().and(with_db($db)).and_then(self::handlers::user_handler::find_all)
 }
 }
 
 #[macro_export]
 macro_rules! find_by_id {
-($value:expr) => {
-    self::routes::user_route::find_by_id().and(with_db($value)).and_then(self::handlers::user_handler::find_by_id)
+($db:expr) => {
+    self::routes::user_route::find_by_id().and(with_db($db)).and_then(self::handlers::user_handler::find_by_id)
 }
 }
 
 #[macro_export]
 macro_rules! create {
-($value:expr) => {
-    self::routes::user_route::create().and(with_db($value)).and_then(self::handlers::user_handler::create)
+($db:expr,  $sse:expr) => {
+    self::routes::user_route::create().and(with_db($db)).and(with_sse($sse)).and_then(self::handlers::user_handler::create)
 }
 }
 
 #[macro_export]
 macro_rules! update {
-($value:expr) => {
-    self::routes::user_route::update().and(with_db($value)).and_then(self::handlers::user_handler::update)
+($db:expr,  $sse:expr) => {
+    self::routes::user_route::update().and(with_db($db)).and(with_sse($sse)).and_then(self::handlers::user_handler::update)
 }
 }
 
 #[macro_export]
 macro_rules! delete {
-($value:expr) => {
-    self::routes::user_route::delete().and(with_db($value)).and_then(self::handlers::user_handler::delete)
+($db:expr,  $sse:expr) => {
+    self::routes::user_route::delete().and(with_db($db)).and(with_sse($sse)).and_then(self::handlers::user_handler::delete)
 }
 }
 
